@@ -13,7 +13,7 @@ buf = np.empty((frameCount, frameHeight, frameWidth, 3), np.dtype('uint8'))
 fc = 0
 ret = True
 gray_array = np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180, 180, 180]))
-red_array = np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([246, 7, 31]))
+red_array = np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([0, 0, 255]))
 while (fc < frameCount  and ret):
     ret, buf[fc] = cap.read()
     col_ctr = 0
