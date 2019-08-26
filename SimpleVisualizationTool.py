@@ -7,7 +7,8 @@ class simpleVisualization:
     def __init__(self):
         pass
 
-    def visualize_single_image(self, image: np.ndarray, title: str = "Image {0}".format(":")):
+    @staticmethod
+    def visualize_single_image(image: np.ndarray, title: str = "Image {0}".format(":")):
         """
         :param image: a np.ndarray shape (*, *, 3), when '*' means and positive integer
         :param title: the title you would like the image window to have
@@ -17,7 +18,8 @@ class simpleVisualization:
         cv2.imshow(title, image)
         cv2.waitKey(0)
 
-    def visualize_video(self, video, **kwargs):
+    @staticmethod
+    def visualize_video(video, **kwargs):
         """
         kwardgs can be:
         {
