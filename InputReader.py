@@ -2,39 +2,42 @@ import cv2
 import numpy as np
 import time
 
+class input_reader:
 
-cap = cv2.VideoCapture('t1.avi')
-frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-frameWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    #TODO - return frame count, width height
 
-buf = np.empty((frameCount, frameHeight, frameWidth, 3), np.dtype('uint8'))
+    def _average_grouped_ndarrays(self, group):
+        return np.mean(np.array(group), axis=0)
 
-fc = 0
-ret = True
-gray_array = np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180, 180, 180]))
-red_array = np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([0, 0, 255]))
-while (fc < frameCount  and ret):
-    ret, buf[fc] = cap.read()
-    col_ctr = 0
-    for col in buf[fc]:
-        rgb_ctr = 0
-        for rgb in col:
-            if (rgb == gray_array).all():
-                buf[fc][col_ctr][rgb_ctr] = red_array
-            rgb_ctr += 1
-        col_ctr += 1
-    fc += 1
-cap.release()
+    def _get_frame_count(self, cap, grouped_frames):
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        frame_count = frame_count / grouped_frames
+        return int(frame_count)
 
-if (gray_array == buf[9][0][0]).all():
-    print('yes')
-else:
-    print('no')
-# print(np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180,180,180])))
-print(buf[9][0][0])
+    def input_to_np(self, input_location, grouped_frames=1):
+        cap = cap = cv2.VideoCapture(input_location)
+        final_frame_count = self._get_frame_count(cap,grouped_frames)
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-cv2.namedWindow('frame 10')
-cv2.imshow('frame 10', buf[9])
+        buf = np.empty((final_frame_count, frame_height, frame_width, 3), np.dtype('uint8'))
 
-cv2.waitKey(0)
+        fc = 0
+        ret = True
+
+        while (fc < final_frame_count and ret):
+            frames_grouped = 0
+            group = [None]*grouped_frames
+            while frames_grouped < grouped_frames and ret:
+                ret,group[frames_grouped] = cap.read()
+                frames_grouped+=1
+
+            average  = self._average_grouped_ndarrays(group)
+            buf[fc] = average
+            fc+=1
+        cap.release()
+
+        # print(np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180,180,180])))
+        return buf
+
+
