@@ -3,14 +3,15 @@ from abc import ABC, abstractmethod
 import cv2
 import numpy as np
 
+
 class Abstract_Input_Reader(ABC):
 
     @abstractmethod
     def input_to_np(self, input_location, grouped_frames=1):
         pass
 
-class Simple_Input_Reader(Abstract_Input_Reader):
 
+class Simple_Input_Reader(Abstract_Input_Reader):
 
     def _average_grouped_ndarrays(self, group):
         return np.mean(np.array(group), axis=0)
@@ -44,5 +45,5 @@ class Simple_Input_Reader(Abstract_Input_Reader):
         cap.release()
 
         # print(np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180,180,180])))
-        return buf, len(buf), frame_width,frame_height
+        return buf, len(buf), frame_width, frame_height
 

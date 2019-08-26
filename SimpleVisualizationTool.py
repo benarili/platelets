@@ -2,11 +2,13 @@ import numpy as np
 import cv2
 import time
 
+
 class simpleVisualization:
+    def __init__(self):
+        pass
 
     def visualize_single_image(self, image: np.ndarray, title: str = "Image {0}".format(":")):
         """
-
         :param image: a np.ndarray shape (*, *, 3), when '*' means and positive integer
         :param title: the title you would like the image window to have
         :return:
@@ -32,8 +34,8 @@ class simpleVisualization:
         if kwargs.get('frame_title'):
             frame_title = kwargs.get('frame_title')
         frame_rate = 0.5
-        if kwargs.get('frame_update_frequncy'):
-            frame_rate = kwargs.get('frame_update_frequncy')
+        if kwargs.get('frame_update_frequency'):
+            frame_rate = kwargs.get('frame_update_frequency')
         fc = 0
         while fc < frame_num:
             image = video[fc]
