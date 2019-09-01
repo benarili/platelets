@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from InputReader import Simple_Input_Reader
+import numpy as np
 
 
 class Abstract_Color_Manipulator(ABC):
@@ -98,3 +99,23 @@ def read_video(video_location, **kwargs):
         return manipulator.manipulate_video(video_frames), frames_amount, frame_width, frame_height
 
 
+class ChannelManipulator(Abstract_Color_Manipulator):
+    """
+    uses the manipulate_video method as the only running function.
+    requires a constructor with defaultive values
+    """
+
+    def manipulate_pixel(self, rgb_to_manipulate):
+        pass
+
+    def __init__(self, new_channel_number: int = 1, **kwargs):
+        self.new_channel_number = new_channel_number
+
+    def manipulate_video(self, video):
+        new_single_channel_file = np.empty((len(video), len(video[0]), len(video[0][0]), self.new_channel_number))
+        for i in range(len(video)):
+            for j in range(len(video[i])):
+                for k in range(len(video[i][j])):
+                    new_single_channel_file[i][j][k] = np.array([int(np.average(video[i][j][k]))])
+
+        return new_single_channel_file.copy()
