@@ -9,7 +9,7 @@ print('range is 150-200')
 gray_range = range(150,200)
 ranges = [gray_range,gray_range,gray_range]
 print('reading video and manipulating frames')
-video, frames_amount, frame_width, frame_height = read_video('t1.avi', new_color=new_color, grouped_frames=20, ranges=ranges)
+video, frames_amount, frame_width, frame_height = read_video('t1.avi', grouped_frames=11, ranges=ranges)
 print('displaying video')
 simpleVisualization.visualize_video(video)
 
