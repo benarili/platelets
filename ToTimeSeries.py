@@ -9,7 +9,7 @@ class ToTimeSeries:
         calculates the amount of bins in frame according the bin and frame dimensions.
         :param x_size: the bin's x axis size
         :param y_size: the bin's y axis size
-        :param kwargs: 'file_name': if you wish to load anything different than default file ('t1.avi')
+        :param kwargs: 'file_name': if you wish to load anything different than default file ('t1.avi'), 'channel_amount': if you use a different channel amount than [R,G,B]
         """
         self.original_file, self.frame_count, self.single_frame_width, self.single_frame_height = original_file, frame_count, single_frame_width, single_frame_height
 
@@ -17,8 +17,9 @@ class ToTimeSeries:
             self.file_name = kwargs.get('file_name')
         else:
             self.file_name = 't1.avi'
+        self.channel_amount = kwargs.get('channel_amount') if kwargs.get('channel_amount', None) else 3
 
-        self._input_reader = Simple_Input_Reader()
+        # self._input_reader = Simple_Input_Reader()
         self.bin_x_size = x_size
         self.bin_y_size = y_size
         self.bin_size = int(self.bin_x_size * self.bin_y_size)
@@ -31,7 +32,7 @@ class ToTimeSeries:
 
         :return: np.ndarray shape(***,**,*,*,3)
         """
-        time_series_of_bins = np.zeros([self.number_of_bins, self.frame_count, self.bin_y_size, self.bin_x_size, 3], dtype=int)
+        time_series_of_bins = np.zeros([self.number_of_bins, self.frame_count, self.bin_y_size, self.bin_x_size, self.channel_amount], dtype=int)
         frames_amount = self.frame_count
         x_min = 0
         x_max = self.bin_x_size
