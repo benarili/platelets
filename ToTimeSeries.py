@@ -43,17 +43,19 @@ class ToTimeSeries:
             x_indices = np.arange(x_min, x_max)
             #     runs on each frame
             for i in range(0, frames_amount):
+                shape = self.original_file[i][y_min:y_max, x_indices].shape
                 time_series_of_bins[bin_to_slice_index, i] = self.original_file[i][y_min:y_max, x_indices].copy()
 
-            x_min = x_max
-            x_max = x_max + x_min
-
-            if x_max - self.single_frame_width >= 0:
+            if x_max - self.single_frame_width >= 0 or (x_max+self.bin_x_size) - self.single_frame_width >= 0:
                 x_min = 0
                 x_max = self.bin_x_size
                 y_min = y_max
-                y_max = y_max + y_min
-
+                y_max = y_max + self.bin_y_size
+            else:
+                x_min = x_max
+                x_max = x_max + self.bin_x_size
+            if y_max >= self.single_frame_height:
+                bin_to_slice_index=self.number_of_bins
             bin_to_slice_index += 1
 
         return time_series_of_bins
