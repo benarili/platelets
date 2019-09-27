@@ -13,7 +13,7 @@ video, frames_amount, frame_width, frame_height = read_video('t1.avi', grouped_f
 print('displaying video')
 simpleVisualization.visualize_video(video)
 
-tts = ToTimeSeries(90,90,video,frames_amount,frame_width,frame_height)
+tts = ToTimeSeries(90, 90, video, frames_amount, frame_width, frame_height)
 time_series = tts.into_time_series()
 for bin in time_series:
     simpleVisualization.visualize_video(bin)

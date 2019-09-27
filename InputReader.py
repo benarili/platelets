@@ -21,18 +21,22 @@ class Simple_Input_Reader(Abstract_Input_Reader):
         frame_count = frame_count / grouped_frames
         return int(frame_count)
 
-    def input_to_np(self, input_location, grouped_frames=1):
+    def input_to_np(self, input_location, grouped_frames=1, **kwargs ):
+        if kwargs.get('cut_file'):
+            cut_file = kwargs.get('cut_file')
+        else:
+            cut_file = 0
         cap = cv2.VideoCapture(input_location)
-        final_frame_count = self._get_frame_count(cap,grouped_frames)
+        final_frame_count = self._get_frame_count(cap, grouped_frames)
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-        buf = np.empty((final_frame_count, frame_height, frame_width, 3), np.dtype('uint8'))
+        buf = np.empty((final_frame_count - cut_file, frame_height, frame_width, 3), np.dtype('uint8'))
 
         fc = 0
         ret = True
 
-        while fc < final_frame_count and ret:
+        while fc < final_frame_count - cut_file and ret:
             frames_grouped = 0
             group = [None]*grouped_frames
             while frames_grouped < grouped_frames and ret:
