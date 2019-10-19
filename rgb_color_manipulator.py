@@ -1,6 +1,10 @@
+import os
+import time as time
+import numpy as np
+import cv2
 from abc import ABC, abstractmethod
 from InputReader import Simple_Input_Reader
-import numpy as np
+from ToTimeSeries import ToTimeSeries as ts_main
 
 
 class Abstract_Color_Manipulator(ABC):
@@ -119,3 +123,75 @@ class ChannelManipulator(Abstract_Color_Manipulator):
                     new_single_channel_file[i][j][k] = np.array([int(np.average(video[i][j][k]))])
 
         return new_single_channel_file.copy()
+
+
+class IntervalAndDeltaInspector(Abstract_Color_Manipulator):
+    """
+    uses the manipulate_video method as the only running function.
+    requires a constructor with defaultive values
+    """
+
+    def __init__(self, interval: list = [0, 8], delta_value: list = [0], **kwargs):
+        """
+
+        :param interval:
+        :param delta_value:
+        :param kwargs:
+        color = a list of rgb values to replace with the detected pixels.
+        """
+        self.interval_of_interest = interval
+        self.delta_of_interest = delta_value
+        if kwargs.get('color'):
+            self.color = kwargs.get('color')
+        else:
+            self.color = np.array([255, 0, 0])
+
+    def manipulate_pixel(self, rgb_to_manipulate):
+        pass
+
+    def manipulate_frame(self, buf):
+        interval_mask_first_frame = np.where((buf[0] >= self.interval_of_interest[0]) & (buf[0] < self.interval_of_interest[1]))
+        first_frame_vals = buf[0][
+            interval_mask_first_frame[0], interval_mask_first_frame[1], interval_mask_first_frame[2]]
+        next_frame_vals = buf[1][
+            interval_mask_first_frame[0], interval_mask_first_frame[1], interval_mask_first_frame[2]]
+        for i in range(len(interval_mask_first_frame[0])):
+            delta_between_frames = next_frame_vals[i] - first_frame_vals[i]
+            if self.delta_of_interest[0] <= delta_between_frames < self.delta_of_interest[1]:
+                x, y, z = interval_mask_first_frame[0][i], interval_mask_first_frame[1][i], \
+                          interval_mask_first_frame[2][i]
+                buf[0][x][y] = np.array(self.color, np.dtype('int64'))
+        return buf
+
+
+def manipulate_video(self, file_name):
+    frames_in_memory = 2
+
+    cap = cv2.VideoCapture(file_name + ".avi")
+    final_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    new_video = np.zeros((final_frame_count, frame_height, frame_width, 3), np.dtype('int64'))
+    buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
+    ret = True
+
+    fc = 0
+    while fc < final_frame_count and ret:
+        # loading the data according
+        in_memory_frames_ctr = 0
+        while in_memory_frames_ctr < frames_in_memory:
+            if np.sum(buf[frames_in_memory - 1]) > 0:
+                temp = buf[frames_in_memory - 1].copy()
+                # buf[FRAMES_IN_MEMORY-1] = np.zeros((frame_height, frame_width, 3))
+                buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
+                buf[0] = temp
+            else:
+                ret, frame = cap.read()
+                buf[in_memory_frames_ctr] = frame
+                fc += 1
+            in_memory_frames_ctr += 1
+        buf = self.manipulate_frame(buf)
+        new_video[fc - 2] = buf[0]
+        new_video[fc - 1] = buf[1]
+
+    cap.release()
