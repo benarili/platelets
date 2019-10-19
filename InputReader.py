@@ -40,12 +40,12 @@ class Simple_Input_Reader(Abstract_Input_Reader):
             frames_grouped = 0
             group = [None]*grouped_frames
             while frames_grouped < grouped_frames and ret:
-                ret,group[frames_grouped] = cap.read()
-                frames_grouped+=1
+                ret, group[frames_grouped] = cap.read()
+                frames_grouped += 1
 
-            average  = self._average_grouped_ndarrays(group)
+            average = self._average_grouped_ndarrays(group)
             buf[fc] = average
-            fc+=1
+            fc += 1
         cap.release()
 
         # print(np.ndarray(shape=(3,), dtype=int, order='F', buffer=np.array([180,180,180])))
