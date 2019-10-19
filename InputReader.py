@@ -30,6 +30,7 @@ class Simple_Input_Reader(Abstract_Input_Reader):
         final_frame_count = self._get_frame_count(cap, grouped_frames)
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
 
         buf = np.empty((final_frame_count - cut_file, frame_height, frame_width, 3), np.dtype('uint8'))
 
