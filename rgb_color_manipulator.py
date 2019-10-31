@@ -163,35 +163,34 @@ class IntervalAndDeltaInspector(Abstract_Color_Manipulator):
                 buf[0][x][y] = np.array(self.color, np.dtype('int64'))
         return buf
 
+    def manipulate_video(self, file_name):
+        frames_in_memory = 2
 
-def manipulate_video(self, file_name):
-    frames_in_memory = 2
+        cap = cv2.VideoCapture(file_name + ".avi")
+        final_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        new_video = np.zeros((final_frame_count, frame_height, frame_width, 3), np.dtype('int64'))
+        buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
+        ret = True
 
-    cap = cv2.VideoCapture(file_name + ".avi")
-    final_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    new_video = np.zeros((final_frame_count, frame_height, frame_width, 3), np.dtype('int64'))
-    buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
-    ret = True
+        fc = 0
+        while fc < final_frame_count and ret:
+            # loading the data according
+            in_memory_frames_ctr = 0
+            while in_memory_frames_ctr < frames_in_memory:
+                if np.sum(buf[frames_in_memory - 1]) > 0:
+                    temp = buf[frames_in_memory - 1].copy()
+                    # buf[FRAMES_IN_MEMORY-1] = np.zeros((frame_height, frame_width, 3))
+                    buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
+                    buf[0] = temp
+                else:
+                    ret, frame = cap.read()
+                    buf[in_memory_frames_ctr] = frame
+                    fc += 1
+                in_memory_frames_ctr += 1
+            buf = self.manipulate_frame(buf)
+            new_video[fc - 2] = buf[0]
+            new_video[fc - 1] = buf[1]
 
-    fc = 0
-    while fc < final_frame_count and ret:
-        # loading the data according
-        in_memory_frames_ctr = 0
-        while in_memory_frames_ctr < frames_in_memory:
-            if np.sum(buf[frames_in_memory - 1]) > 0:
-                temp = buf[frames_in_memory - 1].copy()
-                # buf[FRAMES_IN_MEMORY-1] = np.zeros((frame_height, frame_width, 3))
-                buf = np.zeros((frames_in_memory, frame_height, frame_width, 3), np.dtype('int64'))
-                buf[0] = temp
-            else:
-                ret, frame = cap.read()
-                buf[in_memory_frames_ctr] = frame
-                fc += 1
-            in_memory_frames_ctr += 1
-        buf = self.manipulate_frame(buf)
-        new_video[fc - 2] = buf[0]
-        new_video[fc - 1] = buf[1]
-
-    cap.release()
+        cap.release()
